@@ -15,7 +15,7 @@ class ScraperGui(QMainWindow):
         super(ScraperGui, self).__init__()
 
         self.setWindowTitle('VSCO Scraper')
-        self.setWindowIcon(QIcon('/lib/favicon.ico'))
+        self.setWindowIcon(QIcon('/lib/favicon.ico'))  # FIXME doesn't show up on mac?
 
         self.scraper = Scraper()
         self.genParams = {'username': self.scraper.username}
@@ -31,7 +31,7 @@ class ScraperGui(QMainWindow):
         self.username = QLineEdit('')
         self.username.setFixedWidth(200)
         self.username.textChanged.connect(self.checkGenInputs)
-        self.username.returnPressed.connect(self.downloadButton.click)  # pressing enter will click download
+        # self.username.returnPressed.connect(self.downloadButton.click)
 
         self.directoryButton = QPushButton(DEFAULT_DIR_BUTTON)
         self.directoryButton.clicked.connect(self.selectDirectory)
@@ -49,7 +49,7 @@ class ScraperGui(QMainWindow):
         h.addStretch(1)
         vbox.addLayout(h)
 
-        # DOWNLOAD BUTTON
+        # DOWNLOAD
         h = QHBoxLayout()
         h.addWidget(self.downloadButton)
         self.downloadButton.setEnabled(False)
@@ -62,7 +62,7 @@ class ScraperGui(QMainWindow):
         h.addStretch(1)
         vbox.addLayout(h)
 
-        # QUIT BUTTON
+        # QUIT
         h = QHBoxLayout()
         h.addWidget(self.quitButton)
         h.addStretch(1)
@@ -94,12 +94,7 @@ class ScraperGui(QMainWindow):
 
         self.scraper.browser.close()
         self.progressData.setText('Download complete.')
-
-        # RESET
-        self.username.setText('')
-        self.directoryButton.setText(DEFAULT_DIR_BUTTON)
-        self.directoryButton.setEnabled(True)
-        self.scraper = Scraper()
+        self.reset()
 
     def selectDirectory(self):
         folderPath = QFileDialog.getExistingDirectory(self, DEFAULT_DIR_BUTTON)
@@ -119,6 +114,12 @@ class ScraperGui(QMainWindow):
             self.downloadButton.setEnabled(True)
         else:
             self.downloadButton.setEnabled(False)
+
+    def reset(self):
+        self.username.setText('')
+        self.directoryButton.setText(DEFAULT_DIR_BUTTON)
+        self.directoryButton.setEnabled(True)
+        self.scraper = Scraper()
 
     def clickQuit(self):
         if self.scraper.browser is not None:

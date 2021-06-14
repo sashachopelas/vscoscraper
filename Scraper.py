@@ -21,18 +21,11 @@ class Scraper:
     # TODO is the metadata saved?
     # TODO what about when there are no photos to scrape?
     # TODO what about when the user doesn't exist?
-    # TODO multiple downloads in the same gui instance?
-    # TODO download path?
-
-    # init browser
-    # get images
-    # build directory
-    # download each photo
-    #
+    # TODO progress bar
 
     def __init__(self):
         self.username = ''
-        self.downloadPath = '/Users/sashachopelas/Desktop/test'
+        self.downloadPath = ''
         self.totalPhotos = 0
         self.downloadedPhotos = 0
         self.images = {}
@@ -109,20 +102,12 @@ def convertDate(date):
 
 def scroll(driver, timeout):
     scroll_pause_time = timeout
-
-    # Get scroll height
     last_height = driver.execute_script("return document.body.scrollHeight")
 
     while True:
-        # Scroll down to bottom
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-
-        # Wait to load page
         time.sleep(scroll_pause_time)
-
-        # Calculate new scroll height and compare with last scroll height
         new_height = driver.execute_script("return document.body.scrollHeight")
-        if new_height == last_height:
-            # If heights are the same it will exit the function
+        if new_height == last_height: # If heights are the same, stop
             break
         last_height = new_height
