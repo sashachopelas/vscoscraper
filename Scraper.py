@@ -7,11 +7,14 @@ import shutil
 import sys
 import time
 import uuid
+from http.client import IncompleteRead
+
 
 from selenium import webdriver
 from urllib.request import urlopen
 
 from selenium.common.exceptions import NoSuchElementException
+
 
 
 class Scraper:
@@ -34,6 +37,7 @@ class Scraper:
 
     def initBrowser(self, username):
         self.browser = webdriver.Chrome('venv/bin/chromedriver')
+        self.browser.set_page_load_timeout(14000)  # did this help? lol
 
         self.username = username
         print("loading all images...")
@@ -48,17 +52,23 @@ class Scraper:
             print("page not found :(")
             self.message = 'Page not found.'
 
-        scroll(self.browser, 0.1)
+        scroll(self.browser, 0.25)
         self.images = self.browser.find_elements_by_class_name('MediaThumbnail ')
 
     def process(self, img):
         url = img.find_element_by_css_selector('a').get_attribute('href')
-
         mediaId = url[-24:]
+        html1 = None
 
-        page = urlopen(url)
-        html_bytes = page.read()
-        html1 = html_bytes.decode("utf-8")
+        while True:
+            try:
+                page = urlopen(url)
+                html_bytes = page.read()
+                html1 = html_bytes.decode("utf-8")
+            except IncompleteRead:
+                continue
+            else:
+                break
 
         rawJSON = re.findall('window.__PRELOADED_STATE__ = (.*?)</script>', html1)[0]
         data = json.loads(rawJSON).get("medias").get("byId").get(mediaId).get("media")
