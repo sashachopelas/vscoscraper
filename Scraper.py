@@ -8,14 +8,14 @@ import sys
 import time
 import uuid
 from http.client import IncompleteRead
-
+import logging
 
 from selenium import webdriver
 from urllib.request import urlopen
 
 from selenium.common.exceptions import NoSuchElementException
 
-
+logging.basicConfig(level=logging.INFO, filename='scraper.log')
 
 class Scraper:
     # TODO scrape profile picture
@@ -25,6 +25,7 @@ class Scraper:
     # TODO what about when there are no photos to scrape?
     # TODO what about when the user doesn't exist?
     # TODO progress bar
+    # TODO when exit the gui, should exit the browser
 
     def __init__(self):
         self.username = ''
@@ -32,7 +33,6 @@ class Scraper:
         self.totalPhotos = 0
         self.downloadedPhotos = 0
         self.images = {}
-        self.message = ''
         self.browser = None
 
     def initBrowser(self, username):
@@ -40,7 +40,7 @@ class Scraper:
         self.browser.set_page_load_timeout(14000)  # did this help? lol
 
         self.username = username
-        print("loading all images...")
+        logging.info('loading all images')
         self.browser.get('http://vsco.co/' + self.username + '/gallery')
 
         try:
@@ -49,11 +49,11 @@ class Scraper:
                 'section > div:nth-child(2) > button')
             button.click()
         except NoSuchElementException:
-            print("page not found :(")
-            self.message = 'Page not found.'
+            logging.info("page not found :(")
 
         scroll(self.browser, 0.25)
         self.images = self.browser.find_elements_by_class_name('MediaThumbnail ')
+        logging.info('finished loading photos')
 
     def process(self, img):
         url = img.find_element_by_css_selector('a').get_attribute('href')
@@ -82,7 +82,7 @@ class Scraper:
         self.downloadPath = self.downloadPath + '/' + self.username
 
         if not os.path.exists(self.downloadPath):
-            print("building folder for " + self.username)
+            logging.info("building folder for " + self.username)
             os.mkdir(self.downloadPath, mode=0o777)
             return
 
@@ -92,6 +92,8 @@ class Scraper:
                 i += 1
             self.downloadPath = self.downloadPath + ' (' + str(i) + ')'
             os.mkdir(self.downloadPath, mode=0o777)
+
+        logging.info('downloading to ' + self.downloadPath)
 
     def download(self, url, date):
         if date is None:

@@ -75,6 +75,8 @@ class ScraperGui(QMainWindow):
         t1.start()
 
     def downloadClicked(self):
+        logging.info('username is: ' + self.username.text())
+        logging.info('download button clicked')
         self.directoryButton.setEnabled(False)
         self.downloadButton.setEnabled(False)
         self.progressData.setText('Preparing images...')
@@ -94,7 +96,9 @@ class ScraperGui(QMainWindow):
 
         self.scraper.browser.close()
         self.progressData.setText('Download complete.')
+        logging.info('Download complete.')
         self.reset()
+        logging.info('reset scraper')
 
     def selectDirectory(self):
         folderPath = QFileDialog.getExistingDirectory(self, DEFAULT_DIR_BUTTON)
@@ -122,6 +126,7 @@ class ScraperGui(QMainWindow):
         self.scraper = Scraper()
 
     def clickQuit(self):
+        logging.info('quit button clicked')
         if self.scraper.browser is not None:
             self.scraper.browser.close()
         self.close()
